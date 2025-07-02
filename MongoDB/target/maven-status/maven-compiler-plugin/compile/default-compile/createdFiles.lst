@@ -1,0 +1,10 @@
+MongoDB\Repositorios\productosRepositorio.class
+MongoDB\Controladores\ProductosControlador.class
+MongoDB\Modelos\Cliente.class
+MongoDB\Servicios\ProductosServicios.class
+MongoDB\Controladores\ClienteControlador.class
+MongoDB\Modelos\Productos.class
+MongoDB\WebConfig\ConfiWeb.class
+MongoDB\MongoDbApplication.class
+MongoDB\Servicios\ClienteServicio.class
+MongoDB\Repositorios\ClienteRepositorio.class

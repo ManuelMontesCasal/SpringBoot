@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Usuario con Script</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        div { margin-bottom: 10px; }
+        label { display: inline-block; width: 80px; }
+        input { width: 200px; padding: 5px; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #responseMessage { margin-top: 20px; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; }
+        .success { color: green; border-color: green; }
+        .error { color: red; border-color: red; }
+    </style>
+</head>
+<body>
+<h1>Crear Nuevo Usuario (con JavaScript)</h1>
+
+<div>
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" required>
+</div>
+<div>
+    <label for="apellido">Apellido:</label>
+    <input type="text" id="apellido" required>
+</div>
+<div>
+    <label for="edad">Edad:</label>
+    <input type="number" id="edad" min="0" required>
+</div>
+<div>
+    <label for="altura">Altura (cm):</label>
+    <input type="number" id="altura" step="0.1" min="0" required>
+</div>
+<div>
+    <label for="peso">Peso (kg):</label>
+    <input type="number" id="peso" step="0.1" min="0" required>
+</div>
+
+<button id="crearUsuarioBtn">Crear Usuario</button>
+
+<div id="responseMessage"></div>
+
+<script>
+    document.getElementById('crearUsuarioBtn').addEventListener('click', async () => {
+        const nombre = document.getElementById('nombre').value;
+        const apellido = document.getElementById('apellido').value;
+        const edad = parseInt(document.getElementById('edad').value); // Convertir a entero
+        const altura = parseFloat(document.getElementById('altura').value); // Convertir a float
+        const peso = parseFloat(document.getElementById('peso').value);     // Convertir a float
+        const responseMessageDiv = document.getElementById('responseMessage');
+
+        // Validar campos básicos
+        if (!nombre || !apellido || isNaN(edad) || isNaN(altura) || isNaN(peso)) {
+            responseMessageDiv.className = 'error';
+            responseMessageDiv.textContent = 'Por favor, rellena todos los campos correctamente.';
+            return;
+        }
+
+        const userData = {
+            nombre: nombre,
+            apellido: apellido,
+            edad: edad,
+            altura: altura,
+            peso: peso
+        };
+
+        try {
+            // ¡CAMBIO CLAVE AQUÍ! Usando la URL absoluta para tu backend de Spring Boot
+            const response = await fetch('http://localhost:8080/api/usuarios/crear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Indicamos que estamos enviando JSON
+                },
+                body: JSON.stringify(userData) // Convertimos el objeto JavaScript a una cadena JSON
+            });
+
+            if (response.ok) { // response.ok es true si el status es 2xx
+                const nuevoUsuario = await response.json();
+                responseMessageDiv.className = 'success';
+                responseMessageDiv.textContent = `Usuario creado con éxito. ID: ${nuevoUsuario.id}, Nombre: ${nuevoUsuario.nombre}`;
+                // Opcional: limpiar los campos del formulario
+                document.getElementById('nombre').value = '';
+                document.getElementById('apellido').value = '';
+                document.getElementById('edad').value = '';
+                document.getElementById('altura').value = '';
+                document.getElementById('peso').value = '';
+
+            } else {
+                // Intentar parsear el error si el servidor devuelve JSON con un error
+                const errorData = await response.json().catch(() => ({ message: response.statusText }));
+                responseMessageDiv.className = 'error';
+                responseMessageDiv.textContent = `Error al crear usuario: ${errorData.message || response.statusText}`;
+                console.error('Error:', errorData);
+            }
+        } catch (error) {
+            responseMessageDiv.className = 'error';
+            responseMessageDiv.textContent = `Error de conexión: ${error.message}`;
+            console.error('Error de red o CORS:', error);
+        }
+    });
+</script>
+</body>
+</html>

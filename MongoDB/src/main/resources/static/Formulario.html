@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cliente</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="email"] { width: 300px; padding: 8px; margin-bottom: 10px; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #response { margin-top: 20px; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+<h1>Crear Nuevo Cliente</h1>
+
+<form id="clienteForm">
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" name="nombre" required><br>
+
+    <label for="apellidos">Apellidos:</label>
+    <input type="text" id="apellidos" name="apellidos" required><br>
+
+    <label for="direccion">Dirección:</label>
+    <input type="text" id="direccion" name="direccion" required><br>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br>
+
+    <button type="submit">Crear Cliente</button>
+</form>
+
+<div id="response"></div>
+
+<script>
+    document.getElementById('clienteForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Evita el envío tradicional del formulario
+
+        const formData = new FormData(this);
+        const clienteData = {};
+        formData.forEach((value, key) => {
+            clienteData[key] = value;
+        });
+
+        try {
+            const response = await fetch('http://localhost:8080/api/Clientes/crear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(clienteData)
+            });
+
+            const responseData = await response.json();
+            const responseDiv = document.getElementById('response');
+
+            if (response.ok) { // Si el estado es 2xx (ej. 201 Created)
+                responseDiv.style.backgroundColor = '#d4edda';
+                responseDiv.style.borderColor = '#28a745';
+                responseDiv.style.color = '#155724';
+                responseDiv.textContent = 'Cliente creado con éxito:\n' + JSON.stringify(responseData, null, 2);
+            } else { // Si el estado es un error (ej. 400, 500)
+                responseDiv.style.backgroundColor = '#f8d7da';
+                responseDiv.style.borderColor = '#dc3545';
+                responseDiv.style.color = '#721c24';
+                responseDiv.textContent = 'Error al crear cliente:\n' + JSON.stringify(responseData, null, 2);
+            }
+
+        } catch (error) {
+            const responseDiv = document.getElementById('response');
+            responseDiv.style.backgroundColor = '#f8d7da';
+            responseDiv.style.borderColor = '#dc3545';
+            responseDiv.style.color = '#721c24';
+            responseDiv.textContent = 'Error de red o inesperado: ' + error.message;
+            console.error('Error:', error);
+        }
+    });
+</script>
+</body>
+</html>
